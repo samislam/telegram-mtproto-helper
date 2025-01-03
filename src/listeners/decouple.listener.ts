@@ -1,5 +1,6 @@
 import { bot } from '../lib/bot'
 import { message } from 'telegraf/filters'
+import { env } from '../service/validate-env'
 import ProcessedLink from '../db/links.schema'
 
 export const decoupleListener = () => {
@@ -12,10 +13,12 @@ export const decoupleListener = () => {
     const userId = ctx.from.id || null
 
     // Regular expression to detect any URL links
-    const inviteLinkRegex = /https?:\/\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=]+/g
+    const inviteLinkRegex = /(t\.me\/(?:\+[\w\d]+|[\w\d]+|addlist\/[\w\d]+))/g
+    const anyLinkRegex = /https?:\/\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=]+/g
+    const linkRegex = env.ONLY_JOIN_LINKS ? inviteLinkRegex : anyLinkRegex
 
     // Extract invite links from the message
-    const inviteLinks = messageText.match(inviteLinkRegex)
+    const inviteLinks = messageText.match(linkRegex)
 
     if (inviteLinks) {
       const uniqueLinks: string[] = []
