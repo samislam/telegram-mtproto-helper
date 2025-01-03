@@ -1,15 +1,40 @@
-# telegram-clean-join-links-bot
+# telegram-invite-links-cleaner-bot
 
-To install dependencies:
+A simple and powerful bot that can clean all your duplicated invite links and store them in one chat. Supports multi users.
 
+# Setup
+
+1. Rename the file `.env.example` to `.env.local`.
+2. Obtain a bot token from the **telegram bot father**.
+3. Paste your token in the `TELEGRAM_BOT_TOKEN` environment variable field in the `.env.local` file.
+4. Paste your bot username in the `TELEGRAM_BOT_USERNAME`.
+5. You'll need to setup MongoDB, follow guides online on how to run MongoDB on your machine, then paste your MongoDB connection URL in the `DATABASE_URL` field of the `.env.local` file.
+6. Run the following commands in your terminal:
 ```bash
-bun install
+$ bun install
+$ bun start
 ```
 
-To run:
+> This bot requires bun to be installed, if you don't have bun, download it from [it's website](https://bun.sh/).
+> Bun is faster than Nodejs.
 
-```bash
-bun run ./src/index.ts
+# Guide
+Chat with the bot, tap "start" to start the chat, the bot includes information on how to get started, it's easy, just send the bot any URL and see how it functions.
+
+For example, try to send the bot the following URL:
+`https://example.com`, it's going to delete your message and send you the URL in a message like `https://example.com`. If you tried to send `https://example.com` again, it's going to drop your message. Try to send `Hello`, and it's going to delete your message. Try to send
 ```
+Hello
+https://google.com
+```
+and it's going to drop your message, and send you back `https://google.com`
+The resulting chat would be 
+```
+@bot: https://example.com
+@bot: https://google.com
+```
+So you'll have clean links base.
 
-This project was created using `bun init` in bun v1.1.40. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Now, you might wonder why the bot is accepting any URL and not only telegram invitation links. This behaviour can be changed easily by changing the environment variable `ONLY_JOIN_LINKS=false` to `ONLY_JOIN_LINKS=true` in your `.env.local` file.
+
+Rembmer that after changing any file, if you want to see the results, you have to restart your running service by stopping the process and rerunning the command `bun start`.
