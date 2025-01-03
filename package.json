@@ -3,6 +3,7 @@
   "module": "./src/index.ts",
   "type": "module",
   "prettier": "@samislam/prettier-config",
+  "private": true,
   "scripts": {
     "start": "bun ./src/index.ts",
     "dev": "bun --watch ./src/index.ts"
