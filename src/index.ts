@@ -7,9 +7,11 @@ import { headerLogs } from './service/header-logs'
 import { setCommands } from './functions/set-commands'
 import { helpListener } from './listeners/help.listener'
 import { startListener } from './listeners/start.listener'
+import { notificationsBot } from './lib/notifications-bot'
 import { decoupleListener } from './listeners/decouple.listener'
 import { registerBotListeners } from './utils/register-bot-listeners'
 import { processTerminateListener } from './service/process-terminate-listeners'
+import { message } from 'telegraf/filters'
 
 async function main() {
   configDotenv({ path: '../.env.local' })
@@ -21,10 +23,22 @@ async function main() {
   }
   console.log(`${chalk.greenBright.bold('[Success]')} connected`)
   registerBotListeners([startListener, helpListener, decoupleListener])
+  notificationsBot.on(message('text'), async (ctx) => {
+    const chatId = ctx.chat.id
+    const messageId = ctx.message.message_id
+    const messageText = ctx.message.text
+    console.log(chatId)
+  })
 
   setCommands()
 
-  await bot.launch(headerLogs)
+  await bot.launch(async () => {
+    headerLogs()
+    await notificationsBot.launch(() => {
+      console.log(chalk.bold.greenBright('[Success]'), 'the notifications bot is running')
+    })
+  })
+
   processTerminateListener()
 }
 main()

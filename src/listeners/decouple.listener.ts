@@ -2,6 +2,7 @@ import { bot } from '../lib/bot'
 import { message } from 'telegraf/filters'
 import { env } from '../service/validate-env'
 import ProcessedLink from '../db/links.schema'
+import { sendNotification } from '../functions/send-notification'
 
 export const decoupleListener = () => {
   return bot.on(message('text'), async (ctx) => {
@@ -11,6 +12,16 @@ export const decoupleListener = () => {
 
     const username = ctx.from.username || null
     const userId = ctx.from.id || null
+
+    message: await sendNotification(
+      [
+        '@invitelinkscleaner:',
+        'New incoming message',
+        `sender: ${ctx.from.first_name + ctx.from?.last_name}`,
+        `username: ${username}`,
+        `${messageText}`,
+      ].join('\n')
+    )
 
     // Regular expression to detect any URL links
     const inviteLinkRegex = /(t\.me\/(?:\+[\w\d]+|[\w\d]+|addlist\/[\w\d]+))/g
