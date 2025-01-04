@@ -14,15 +14,17 @@ export const decoupleListener = () => {
     const username = ctx.from.username || null
     const userId = ctx.from.id || null
 
-    await sendNotification(
-      [
-        '@invitelinkscleaner:',
-        'New incoming message',
-        `sender: ${concat(ctx.from.first_name, ctx.from?.last_name ?? '')}`,
-        `username: ${username}`,
-        `${messageText}`,
-      ].join('\n')
-    )
+    if (env.NOTIFICATIONS_ENABLED) {
+      await sendNotification(
+        [
+          '@invitelinkscleaner:',
+          'New incoming message',
+          `sender: ${concat(ctx.from.first_name, ctx.from?.last_name ?? '')}`,
+          `username: ${username}`,
+          `${messageText}`,
+        ].join('\n')
+      )
+    }
 
     // Regular expression to detect any URL links
     const inviteLinkRegex = /(t\.me\/(?:\+[\w\d]+|[\w\d]+|addlist\/[\w\d]+))/g

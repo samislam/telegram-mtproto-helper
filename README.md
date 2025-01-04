@@ -38,3 +38,11 @@ So you'll have clean links base.
 Now, you might wonder why the bot is accepting any URL and not only telegram invitation links. This behaviour can be changed easily by changing the environment variable `ONLY_JOIN_LINKS=false` to `ONLY_JOIN_LINKS=true` in your `.env.local` file.
 
 Rembmer that after changing any file, if you want to see the results, you have to restart your running service by stopping the process and rerunning the command `bun start`.
+
+# Usage Notifications
+
+You can get notified when someone uses your bot easily, 
+1. create a new bot using the bot father and copy the generated token and your bot username.
+2. paste the values in `.env.local` environment variables `NOTIFICATIONS_BOT_TOKEN` and `NOTIFICATIONS_BOT_USERNAME`.
+3. Get your chat id with your notifications bot, you can find tutorials online on how to get the chat id between you and your bot online, the library used in this code is `telegraf`. Then paste your chat id in the `NOTIFICATIONS_BOT_OWNER_CHAT_ID` environment variable.
+4. set the environment variable `NOTIFICATIONS_ENABLED` to `true`.

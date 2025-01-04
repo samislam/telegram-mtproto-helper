@@ -31,13 +31,12 @@ async function main() {
   })
 
   setCommands()
-
-  await bot.launch(async () => {
-    headerLogs()
-    await notificationsBot.launch(() => {
+  await Promise.all([
+    notificationsBot.launch(() => {
       console.log(chalk.bold.greenBright('[Success]'), 'the notifications bot is running')
-    })
-  })
+    }),
+    bot.launch(headerLogs),
+  ])
 
   processTerminateListener()
 }
