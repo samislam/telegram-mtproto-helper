@@ -14,7 +14,7 @@ export const decoupleListener = () => {
     const username = ctx.from.username || null
     const userId = ctx.from.id || null
 
-    message: await sendNotification(
+    await sendNotification(
       [
         '@invitelinkscleaner:',
         'New incoming message',
