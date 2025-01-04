@@ -1,9 +1,9 @@
 import { bot } from '../lib/bot'
+import { concat } from 'concat-str'
 import { message } from 'telegraf/filters'
 import { env } from '../service/validate-env'
 import ProcessedLink from '../db/links.schema'
 import { sendNotification } from '../functions/send-notification'
-import { concat } from 'concat-str'
 
 export const decoupleListener = () => {
   return bot.on(message('text'), async (ctx) => {
