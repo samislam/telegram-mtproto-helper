@@ -11,7 +11,6 @@ import { notificationsBot } from './lib/notifications-bot'
 import { decoupleListener } from './listeners/decouple.listener'
 import { registerBotListeners } from './utils/register-bot-listeners'
 import { processTerminateListener } from './service/process-terminate-listeners'
-import { message } from 'telegraf/filters'
 
 async function main() {
   configDotenv({ path: '../.env.local' })
@@ -23,12 +22,6 @@ async function main() {
   }
   console.log(`${chalk.greenBright.bold('[Success]')} connected`)
   registerBotListeners([startListener, helpListener, decoupleListener])
-  notificationsBot.on(message('text'), async (ctx) => {
-    const chatId = ctx.chat.id
-    const messageId = ctx.message.message_id
-    const messageText = ctx.message.text
-    console.log(chatId)
-  })
 
   setCommands()
   await Promise.all([

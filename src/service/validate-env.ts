@@ -1,4 +1,4 @@
-import { cleanEnv, str, email, json, bool } from 'envalid'
+import { cleanEnv, str, bool, num } from 'envalid'
 
 export const env = cleanEnv(process.env, {
   TELEGRAM_BOT_TOKEN: str(),
@@ -9,4 +9,5 @@ export const env = cleanEnv(process.env, {
   NOTIFICATIONS_BOT_USERNAME: str({ default: '' }),
   NOTIFICATIONS_BOT_OWNER_CHAT_ID: str({ default: '' }),
   NOTIFICATIONS_ENABLED: bool({ default: false }),
+  OWNER_USER_ID: num({ default: 0 }),
 })

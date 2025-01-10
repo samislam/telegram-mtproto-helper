@@ -45,4 +45,5 @@ You can get notified when someone uses your bot easily,
 1. create a new bot using the bot father and copy the generated token and your bot username.
 2. paste the values in `.env.local` environment variables `NOTIFICATIONS_BOT_TOKEN` and `NOTIFICATIONS_BOT_USERNAME`.
 3. Get your chat id with your notifications bot, you can find tutorials online on how to get the chat id between you and your bot online, the library used in this code is `telegraf`. Then paste your chat id in the `NOTIFICATIONS_BOT_OWNER_CHAT_ID` environment variable.
-4. set the environment variable `NOTIFICATIONS_ENABLED` to `true`.
+4. Find your own telegram id and add it to the `OWNER_USER_ID` environment variable, this value is a number, this value is important because it filters out your own messages from the notifications area.
+5. set the environment variable `NOTIFICATIONS_ENABLED` to `true`.

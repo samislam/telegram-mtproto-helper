@@ -14,7 +14,7 @@ export const decoupleListener = () => {
     const username = ctx.from.username || null
     const userId = ctx.from.id || null
 
-    if (env.NOTIFICATIONS_ENABLED) {
+    if (env.NOTIFICATIONS_ENABLED && env.OWNER_USER_ID !== userId) {
       await sendNotification(
         [
           '@invitelinkscleaner:',
