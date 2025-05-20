@@ -9,8 +9,15 @@ import { startKeepAlive } from './functions/keep-alive'
 import { helpListener } from './listeners/help.listener'
 import { startListener } from './listeners/start.listener'
 import { whoamiListener } from './listeners/whoami.listener'
+import { loginListener } from './listeners/auth/login.listener'
+import { logoutListener } from './listeners/auth/logout.listener'
 import { listRulesListener } from './listeners/list-rules.listener'
+import { loginController } from './listeners/auth/login.controller'
 import { registerBotListeners } from './utils/register-bot-listeners'
+import { registerListener } from './listeners/auth/register.listener'
+import { logoutController } from './listeners/auth/logout.controller'
+import { registerController } from './listeners/auth/regsiter.controller'
+import { accountsController } from './listeners/auth/accounts.controller'
 import { startMediaForwarder } from './listeners/media-forwarder/watch-media'
 import { registerMessageListeners } from './utils/register-message-listeners'
 import { processTerminateListener } from './service/process-terminate-listeners'
@@ -47,15 +54,22 @@ async function main() {
     helpListener,
     startListener,
     whoamiListener,
+    loginController,
     listRulesListener,
-    linksForwarderListener,
+    registerController,
     mediaCrawlerListener,
+    linksForwarderListener,
     mediaForwarderController,
+    accountsController,
+    logoutController,
   ])
 
   registerMessageListeners([
-    onMediaForwarderUserSelection,
+    logoutListener,
+    loginListener,
+    registerListener,
     onMediaCrawlerUserSelection,
+    onMediaForwarderUserSelection,
     remove_mediaForwarderListener,
   ])
   setCommands()
@@ -68,5 +82,5 @@ async function main() {
 
 main().catch((err) => {
   console.error(err)
-  process.exit(1)
+  // process.exit(1)
 })

@@ -1,5 +1,6 @@
 import { bot } from '../lib/bot'
 import { Markup } from 'telegraf'
+import { protect } from '../functions/protect'
 
 export const mainKeyboard = () =>
   Markup.inlineKeyboard([
@@ -10,7 +11,9 @@ export const mainKeyboard = () =>
   ])
 
 export const startListener = () => {
-  bot.start((ctx) => {
+  bot.start(async (ctx) => {
+    if (!(await protect(ctx))) return
+
     ctx.reply('👋 Welcome! Choose a feature:', mainKeyboard())
   })
 

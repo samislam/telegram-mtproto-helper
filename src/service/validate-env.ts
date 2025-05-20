@@ -6,5 +6,6 @@ export const env = cleanEnv(process.env, {
   DATABASE_URL: str(),
   APP_API_ID: num(),
   APP_API_HASH: str(),
+  REGISTER_SECRET: str(),
   OWNER_USER_ID: num({ default: 0 }),
 })

@@ -14,7 +14,6 @@ export type TextListener = (
 /** Wire up ONE bot.on('message') that fan-outs into all your listeners. */
 export function registerTextListeners(listeners: TextListener[]) {
   bot.on(message('text'), async (ctx) => {
-    console.log('wooo')
     for (const fn of listeners) {
       try {
         await fn(ctx)

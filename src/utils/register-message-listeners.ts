@@ -10,7 +10,6 @@ export type MessageListener = (
 /** Wire up ONE bot.on('message') that fan-outs into all your listeners. */
 export function registerMessageListeners(listeners: MessageListener[]) {
   bot.on('message', async (ctx) => {
-    console.log('mew')
     for (const fn of listeners) {
       try {
         await fn(ctx)
