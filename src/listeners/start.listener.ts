@@ -1,25 +1,20 @@
 import { bot } from '../lib/bot'
 import { Markup } from 'telegraf'
 
-export const startListener = () => {
-  return bot.start((ctx) => {
-    const message = [
-      '*Hello!*',
-      '',
-      "*It's Easy to get started! send me telegram invite links and I'll ensure:*",
-      '',
-      '- No duplicate links exist in our chat',
-      '- No non-links exist in our chat',
-      '- Split links in a message into multiple messages',
-      '- Remove the original forwarder',
-      '- Remove expired links (works only on telegram links)',
-      '',
-      '*Practical steps:*',
-      '',
-      '1- Send me here invite links, or forward them to me here',
-      "2- That's it the bot will do the rest!",
-    ].join('\n')
+export const mainKeyboard = () =>
+  Markup.inlineKeyboard([
+    [Markup.button.callback('📤 Media-Forwarder', 'cmd:media_forwarder')],
+    [Markup.button.callback('🔗 Link-Forwarder', 'cmd:link_forwarder')],
+    [Markup.button.callback('🗂️ Media-Crawler', 'cmd:media_crawler')],
+    [Markup.button.callback('📋 List Rules', 'cmd:list')],
+  ])
 
-    ctx.reply(message, { parse_mode: 'Markdown' })
+export const startListener = () => {
+  bot.start((ctx) => {
+    ctx.reply('👋 Welcome! Choose a feature:', mainKeyboard())
+  })
+
+  bot.action('screen:main', async (ctx) => {
+    await ctx.editMessageText('👋 Welcome! Choose a feature:', mainKeyboard())
   })
 }
