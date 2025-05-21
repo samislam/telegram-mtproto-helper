@@ -5,10 +5,9 @@ import { mediaForwarderSessions } from './media-forwarder.session'
 
 export const add_mediaForwarderListener = () => {
   bot.action('media:add', async (ctx) => {
-    if (!isOwner(ctx)) return
     await ctx.answerCbQuery()
 
-    const chats = await getChatList()
+    const chats = await getChatList(ctx.from.id)
     const numberedList = chats.map((c, i) => `[${i + 1}] ${c.title}`).join('\n')
 
     mediaForwarderSessions.set(ctx.from.id, {

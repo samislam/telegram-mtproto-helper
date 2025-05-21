@@ -5,14 +5,6 @@ import { crawlAndForwardMedia } from './crawl-and-forward-media'
 import type { MessageListener } from '../../utils/register-message-listeners'
 
 export const onMediaCrawlerUserSelection: MessageListener = async (ctx) => {
-  if (!isOwner(ctx)) return
-
-  // // ✅ TEMP: Debug forwarded messages
-  // if (ctx.message?.forward_from || ctx.message?.forward_sender_name || ctx.message?.sender_chat) {
-  //   console.log('🧪 Forwarded message structure:')
-  //   console.dir(ctx.message, { depth: null })
-  // }
-
   const session = mediaCrawlerSessions.get(ctx.from.id)
   if (!session || !session.chatList) return
 

@@ -74,8 +74,6 @@ import { getChatList } from '../../functions/get-chat-list'
 
 export const onMediaCrawlerCommand = () => {
   bot.action('cmd:media_crawler', async (ctx) => {
-    if (!isOwner(ctx)) return
-
     const chats = await getChatList()
     const numberedList = chats.map((c, i) => `[${i + 1}] ${c.title}`).join('\n')
 

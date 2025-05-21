@@ -4,8 +4,6 @@ import { saveMediaForwarderRule } from './save-media-forwarder-rule'
 import type { MessageListener } from '../../utils/register-message-listeners'
 
 export const onMediaForwarderUserSelection: MessageListener = async (ctx) => {
-  if (!isOwner(ctx)) return
-
   const session = mediaForwarderSessions.get(ctx.from.id)
 
   console.log(session)
@@ -29,12 +27,13 @@ export const onMediaForwarderUserSelection: MessageListener = async (ctx) => {
 
   if (session.step === 'await_target_index') {
     const targetId = selected.id
+    const userId = ctx.from.id
     if (session.sourceId === targetId) {
       mediaForwarderSessions.delete(ctx.from.id)
       return ctx.reply('⚠️ Source and target cannot be the same. Start again.')
     }
 
-    await saveMediaForwarderRule(session.sourceId, targetId)
+    await saveMediaForwarderRule(userId, session.sourceId, targetId)
     await ctx.reply(`✅ Done. Forwarding media from "${session.sourceId}" ➜ "${targetId}"`)
     mediaForwarderSessions.delete(ctx.from.id)
   }

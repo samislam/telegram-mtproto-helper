@@ -1,5 +1,5 @@
 import { MediaForwardingModel } from '../../db/media-forwarding.schema'
-import { client } from '../../functions/login'
+import { getClientForChat } from '../../lib/mtproto-client-manager'
 import { removeMediaForwarderHandler, registerMediaForwarderHandler } from './watch-media'
 import { Api } from 'telegram'
 
@@ -16,7 +16,14 @@ function extractPeerTypeAndHash(peer: Api.TypeInputPeer): {
   throw new Error('Unsupported peer type')
 }
 
-export const saveMediaForwarderRule = async (sourceId: number, targetId: number) => {
+export const saveMediaForwarderRule = async (
+  userId: number,
+  sourceId: number,
+  targetId: number
+) => {
+  const client = await getClientForChat(userId)
+  if (!client) throw new Error('No client found for this user.')
+
   const sourceEntity = await client.getEntity(sourceId)
   const sourcePeer = await client.getInputEntity(sourceEntity)
   const { peerType: sourceType, accessHash: sourceHash } = extractPeerTypeAndHash(sourcePeer)
@@ -25,10 +32,12 @@ export const saveMediaForwarderRule = async (sourceId: number, targetId: number)
   const targetPeer = await client.getInputEntity(targetEntity)
   const { peerType: targetType, accessHash: targetHash } = extractPeerTypeAndHash(targetPeer)
 
+  // ✅ Store with chatId for multi-tenancy
   await MediaForwardingModel.updateOne(
-    { sourceId },
+    { chatId: userId, sourceId },
     {
       $set: {
+        chatId: userId,
         sourceId,
         sourceType,
         sourceHash,
@@ -40,8 +49,17 @@ export const saveMediaForwarderRule = async (sourceId: number, targetId: number)
     { upsert: true }
   )
 
-  removeMediaForwarderHandler(sourceId)
-  registerMediaForwarderHandler(sourceId, targetId, sourceType, sourceHash, targetType, targetHash)
+  // ✅ Scoped handler by userId
+  removeMediaForwarderHandler(userId, sourceId)
+  registerMediaForwarderHandler(
+    userId,
+    sourceId,
+    targetId,
+    sourceType,
+    sourceHash,
+    targetType,
+    targetHash
+  )
 
   console.log(`🔁 Saved media forwarder: ${sourceId} ➜ ${targetId}`)
 }

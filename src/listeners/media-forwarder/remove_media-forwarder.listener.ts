@@ -15,8 +15,14 @@ export const remove_mediaForwarderListener: MessageListener = async (ctx) => {
   }
 
   const entry = session.forwarders[index - 1]
-  await MediaForwardingModel.deleteOne({ sourceId: entry.sourceId })
-  removeMediaForwarderHandler(entry.sourceId)
+
+  // ❗ Fix: Filter delete by user too
+  await MediaForwardingModel.deleteOne({
+    chatId: ctx.from.id, // 👈 ensure multi-tenant isolation
+    sourceId: entry.sourceId,
+  })
+
+  removeMediaForwarderHandler(ctx.from.id, entry.sourceId) // 👈 Pass chatId
 
   mediaForwarderSessions.delete(ctx.from.id)
 
