@@ -1,4 +1,3 @@
-import { isOwner } from '../../utils/is-owner'
 import { mediaForwarderSessions } from './media-forwarder.session'
 import { saveMediaForwarderRule } from './save-media-forwarder-rule'
 import type { MessageListener } from '../../utils/register-message-listeners'

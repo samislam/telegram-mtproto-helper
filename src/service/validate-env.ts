@@ -7,5 +7,4 @@ export const env = cleanEnv(process.env, {
   APP_API_ID: num(),
   APP_API_HASH: str(),
   REGISTER_SECRET: str(),
-  OWNER_USER_ID: num({ default: 0 }),
 })
