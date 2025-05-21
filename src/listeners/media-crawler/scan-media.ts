@@ -1,6 +1,9 @@
-import { client } from '../../functions/login'
+import { getClientForChat } from '../../lib/mtproto-client-manager'
 
-export const scanMedia = async (chatId: number, maxMessages: number) => {
+export const scanMedia = async (userId: number, chatId: number, maxMessages: number) => {
+  const client = await getClientForChat(userId)
+  if (!client) throw new Error('Client not found.')
+
   const entity = await client.getInputEntity(chatId)
 
   let stats = {
@@ -11,7 +14,6 @@ export const scanMedia = async (chatId: number, maxMessages: number) => {
   }
 
   const messages = []
-
   let scanned = 0
 
   for await (const msg of client.iterMessages(entity, { reverse: false })) {

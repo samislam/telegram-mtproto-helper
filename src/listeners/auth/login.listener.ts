@@ -7,7 +7,7 @@ import { UserSessionModel } from '../../db/user-session.schema'
 import type { MessageListener } from '../../utils/register-message-listeners'
 
 export const loginListener: MessageListener = async (ctx) => {
-  const session = authSessions.get(ctx.chat.id)
+  const session = authSessions.get(ctx.from.id)
   if (!session || session.flow !== 'login') return
   const text = ctx.message?.text?.trim()
   if (!text) return
@@ -26,7 +26,7 @@ export const loginListener: MessageListener = async (ctx) => {
   if (session.step === 'await_phone') {
     const doc = await SessionModel.findOne({ phoneNumber: text })
     if (!doc) {
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       return ctx.reply('❌ Not registered. Please use /register first.')
     }
 
@@ -37,11 +37,11 @@ export const loginListener: MessageListener = async (ctx) => {
     const newEntry = await UserSessionModel.create({
       phoneNumber: text,
       session: doc.session,
-      chatId: ctx.chat.id,
+      chatId: ctx.from.id,
       status: 'active',
     })
 
-    authSessions.delete(ctx.chat.id)
+    authSessions.delete(ctx.from.id)
     return ctx.reply('✅ Welcome back. You are now logged in!')
   }
 }

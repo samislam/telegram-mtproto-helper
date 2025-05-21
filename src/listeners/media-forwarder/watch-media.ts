@@ -2,7 +2,7 @@ import { Api } from 'telegram'
 import { getClientForChat } from '../../lib/mtproto-client-manager'
 import { MediaForwardingModel } from '../../db/media-forwarding.schema'
 
-type ForwarderKey = `${number}:${number}` // e.g., "123456:987654"
+type ForwarderKey = `${number}:${number}` // e.g. "123456:987654"
 
 const activeHandlers = new Map<ForwarderKey, (update: any) => void>()
 
@@ -10,9 +10,9 @@ export const registerMediaForwarderHandler = (
   chatId: number,
   sourceId: number,
   targetId: number,
-  sourceType: 'chat' | 'channel',
+  sourceType: 'chat' | 'channel' | 'self',
   sourceHash: string,
-  targetType: 'chat' | 'channel',
+  targetType: 'chat' | 'channel' | 'self',
   targetHash: string
 ) => {
   const key: ForwarderKey = `${chatId}:${sourceId}`
@@ -23,7 +23,11 @@ export const registerMediaForwarderHandler = (
 
     if (msg.className !== 'Message' || msg.editDate || !msg.media) return
 
-    const peerId = msg.peerId?.channelId?.toJSNumber?.() ?? msg.peerId?.chatId?.toJSNumber?.()
+    const peerId =
+      msg.peerId?.channelId?.toJSNumber?.() ??
+      msg.peerId?.chatId?.toJSNumber?.() ??
+      msg.peerId?.userId?.toJSNumber?.()
+
     if (peerId !== sourceId) return
 
     console.log(`📥 Matched rule for ${sourceId} -> ${targetId}`)
@@ -39,14 +43,13 @@ export const registerMediaForwarderHandler = (
 
       let toPeer: Api.TypeInputPeer
       if (targetType === 'channel') {
-        toPeer = new Api.InputPeerChannel({
-          channelId: targetId,
-          accessHash: BigInt(targetHash),
-        })
+        toPeer = new Api.InputPeerChannel({ channelId: targetId, accessHash: BigInt(targetHash) })
+      } else if (targetType === 'chat') {
+        toPeer = new Api.InputPeerChat({ chatId: targetId })
+      } else if (targetType === 'self') {
+        toPeer = new Api.InputPeerSelf()
       } else {
-        toPeer = new Api.InputPeerChat({
-          chatId: targetId,
-        })
+        toPeer = new Api.InputPeerUser({ userId: targetId, accessHash: BigInt(targetHash) }) // ✅ new
       }
 
       await client.forwardMessages(toPeer, {
@@ -91,7 +94,6 @@ export const startMediaForwarder = async () => {
   const rules = await MediaForwardingModel.find()
 
   for (const rule of rules) {
-    // You must ensure `chatId` is saved in each rule document
     registerMediaForwarderHandler(
       rule.chatId,
       rule.sourceId,

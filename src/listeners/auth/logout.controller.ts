@@ -6,7 +6,7 @@ export const logoutController = () => {
   bot.command('logout', async (ctx) => {
     if (!(await protect(ctx))) return
 
-    authSessions.set(ctx.chat.id, {
+    authSessions.set(ctx.from.id, {
       flow: 'logout',
       step: 'await_logout_choice', // ✅ skip secret if already logged in
     })

@@ -1,11 +1,15 @@
-import { client } from '../../functions/login'
+import { getClientForChat } from '../../lib/mtproto-client-manager'
 
 export const crawlAndForwardMedia = async (
+  userId: number,
   sourceId: number,
   targetId: number,
   messages: any[],
   onProgress?: (count: number, total: number) => void
 ) => {
+  const client = await getClientForChat(userId)
+  if (!client) throw new Error('Client not found.')
+
   let source, target
 
   try {

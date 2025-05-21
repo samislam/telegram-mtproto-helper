@@ -8,31 +8,31 @@ import { UserSessionModel } from '../../db/user-session.schema'
 import type { MessageListener } from '../../utils/register-message-listeners'
 
 export const logoutListener: MessageListener = async (ctx) => {
-  const session = authSessions.get(ctx.chat.id)
+  const session = authSessions.get(ctx.from.id)
   const text = ctx.message?.text?.trim()
   if (!session || session.flow !== 'logout' || !text) return
 
   if (session.step === 'await_logout_choice') {
     if (text === '1') {
-      await UserSessionModel.updateMany({ chatId: ctx.chat.id }, { $set: { status: 'expired' } })
-      authSessions.delete(ctx.chat.id)
+      await UserSessionModel.updateMany({ chatId: ctx.from.id }, { $set: { status: 'expired' } })
+      authSessions.delete(ctx.from.id)
       return ctx.reply('✅ You have been logged out from this session.')
     }
 
     if (text === '2') {
       const activeUser = await UserSessionModel.findOne({
-        chatId: ctx.chat.id,
+        chatId: ctx.from.id,
         status: 'active',
       })
 
       if (!activeUser) {
-        authSessions.delete(ctx.chat.id)
+        authSessions.delete(ctx.from.id)
         return ctx.reply('❌ You are not logged in.')
       }
 
       const entry = await SessionModel.findOne({ phoneNumber: activeUser.phoneNumber })
       if (!entry) {
-        authSessions.delete(ctx.chat.id)
+        authSessions.delete(ctx.from.id)
         return ctx.reply('❌ Session not found.')
       }
 
@@ -53,10 +53,10 @@ export const logoutListener: MessageListener = async (ctx) => {
           { $set: { status: 'expired' } }
         )
 
-        authSessions.delete(ctx.chat.id)
+        authSessions.delete(ctx.from.id)
         return ctx.reply('✅ Fully logged out and session removed.')
       } catch (err: any) {
-        authSessions.delete(ctx.chat.id)
+        authSessions.delete(ctx.from.id)
         console.error('❌ Error logging out:', err)
         return ctx.reply('❌ Failed to log out: ' + err.message)
       }

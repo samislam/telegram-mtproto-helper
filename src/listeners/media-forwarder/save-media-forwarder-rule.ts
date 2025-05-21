@@ -4,13 +4,17 @@ import { removeMediaForwarderHandler, registerMediaForwarderHandler } from './wa
 import { Api } from 'telegram'
 
 function extractPeerTypeAndHash(peer: Api.TypeInputPeer): {
-  peerType: 'chat' | 'channel'
+  peerType: 'chat' | 'channel' | 'self' | 'user'
   accessHash: string
 } {
   if (peer instanceof Api.InputPeerChannel) {
     return { peerType: 'channel', accessHash: peer.accessHash.toString() }
   } else if (peer instanceof Api.InputPeerChat) {
-    return { peerType: 'chat', accessHash: '0' } // chats don’t have access_hash
+    return { peerType: 'chat', accessHash: '0' }
+  } else if (peer instanceof Api.InputPeerSelf) {
+    return { peerType: 'self', accessHash: '0' }
+  } else if (peer instanceof Api.InputPeerUser) {
+    return { peerType: 'user', accessHash: peer.accessHash.toString() }
   }
 
   throw new Error('Unsupported peer type')

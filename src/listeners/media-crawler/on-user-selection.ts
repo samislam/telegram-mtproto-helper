@@ -1,5 +1,4 @@
 import { scanMedia } from './scan-media'
-import { isOwner } from '../../utils/is-owner'
 import { mediaCrawlerSessions } from './media-crawler.session'
 import { crawlAndForwardMedia } from './crawl-and-forward-media'
 import type { MessageListener } from '../../utils/register-message-listeners'
@@ -10,7 +9,7 @@ export const onMediaCrawlerUserSelection: MessageListener = async (ctx) => {
 
   const text = ctx.message.text.trim()
 
-  // Step 1: User selects source
+  // Step 1: Select source
   if (session.step === 'await_source_index') {
     const index = parseInt(text)
     if (isNaN(index) || index < 1 || index > session.chatList.length) return
@@ -21,7 +20,7 @@ export const onMediaCrawlerUserSelection: MessageListener = async (ctx) => {
     return ctx.reply('Choose destination:')
   }
 
-  // Step 2: User selects target
+  // Step 2: Select target
   if (session.step === 'await_target_index') {
     const index = parseInt(text)
     if (isNaN(index) || index < 1 || index > session.chatList.length) return
@@ -38,7 +37,7 @@ export const onMediaCrawlerUserSelection: MessageListener = async (ctx) => {
     return ctx.reply('📊 Enter how many messages to scan (e.g. 1000, 5000, 10000):')
   }
 
-  // Step 3: User chooses scan depth
+  // Step 3: Scan depth input
   if (session.step === 'await_scan_depth') {
     const depth = parseInt(text)
     if (isNaN(depth) || depth < 100 || depth > 50000) {
@@ -49,23 +48,29 @@ export const onMediaCrawlerUserSelection: MessageListener = async (ctx) => {
     session.step = 'await_confirmation'
     await ctx.reply('Scanning...')
 
-    const { stats, messages } = await scanMedia(session.sourceId!, session.scanLimit!)
+    try {
+      const { stats, messages } = await scanMedia(
+        ctx.from.id,
+        session.sourceId!,
+        session.scanLimit!
+      )
+      session.scanStats = stats
+      ;(session as any).scannedMessages = messages
 
-    session.scanStats = stats
-    ;(session as any).scannedMessages = messages
-
-    return ctx.reply(
-      `Scan complete, found ${stats.total} media:\n- Images: ${stats.images}\n- Videos: ${stats.videos}\n- Stickers: ${stats.stickers}\n\nStart crawling? [yes/no]`
-    )
+      return ctx.reply(
+        `Scan complete, found ${stats.total} media:\n- Images: ${stats.images}\n- Videos: ${stats.videos}\n- Stickers: ${stats.stickers}\n\nStart crawling? [yes/no]`
+      )
+    } catch (err: any) {
+      await ctx.reply(err.message || '❌ Failed to scan. Are you logged in?')
+      mediaCrawlerSessions.delete(ctx.from.id)
+      return
+    }
   }
 
-  // Step 4: User confirms crawling
+  // Step 4: Confirm crawling
   if (session.step === 'await_confirmation') {
     const answer = text.toLowerCase()
-    console.log('1- ', answer)
-
     if (answer === 'no') {
-      console.log('2- ', answer)
       mediaCrawlerSessions.delete(ctx.from.id)
       return ctx.reply('Aborted.')
     }
@@ -79,6 +84,7 @@ export const onMediaCrawlerUserSelection: MessageListener = async (ctx) => {
     const messages = (session as any).scannedMessages
 
     await crawlAndForwardMedia(
+      ctx.from.id, // ✅ userId
       session.sourceId!,
       session.targetId!,
       messages,

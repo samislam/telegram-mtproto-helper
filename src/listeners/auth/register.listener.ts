@@ -7,7 +7,7 @@ import { SessionModel } from '../../db/session-schema'
 import type { MessageListener } from '../../utils/register-message-listeners'
 
 export const registerListener: MessageListener = async (ctx) => {
-  const session = authSessions.get(ctx.chat.id)
+  const session = authSessions.get(ctx.from.id)
   if (!session || session.flow !== 'register') return
 
   const text = ctx.message?.text?.trim()
@@ -32,7 +32,7 @@ export const registerListener: MessageListener = async (ctx) => {
 
     const exists = await SessionModel.findOne({ phoneNumber: phone })
     if (exists) {
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       return ctx.reply('ℹ️ This phone is already registered. Use /login or /refresh-session.')
     }
 
@@ -59,7 +59,7 @@ export const registerListener: MessageListener = async (ctx) => {
 
       return ctx.reply('📩 Enter the code sent to your phone:')
     } catch (err: any) {
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       console.error('❌ Error sending code:', err)
       return ctx.reply('❌ Failed to send code: ' + err.message)
     }
@@ -75,7 +75,7 @@ export const registerListener: MessageListener = async (ctx) => {
       !session.phoneNumber ||
       now - (session.codeSentAt || 0) > MAX_TIMEOUT
     ) {
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       return ctx.reply('⏱️ Code expired. Please use /register to try again.')
     }
 
@@ -95,7 +95,7 @@ export const registerListener: MessageListener = async (ctx) => {
       const stringSession = session.client.session.save()
       await SessionModel.create({ phoneNumber: session.phoneNumber, session: stringSession })
 
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       return ctx.reply('✅ Registration successful. Use /login to access.')
     } catch (err: any) {
       if (err.errorMessage === 'SESSION_PASSWORD_NEEDED') {
@@ -103,7 +103,7 @@ export const registerListener: MessageListener = async (ctx) => {
         return ctx.reply('🔐 This account has 2FA. Please enter your password:')
       }
 
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       console.error('❌ Error signing in:', err)
       return ctx.reply('❌ Invalid code or error: ' + err.message)
     }
@@ -120,11 +120,11 @@ export const registerListener: MessageListener = async (ctx) => {
       const stringSession = session.client.session.save()
       await SessionModel.create({ phoneNumber: session.phoneNumber!, session: stringSession })
 
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       return ctx.reply('✅ Registration successful. Use /login to access.')
     } catch (err: any) {
       console.error('❌ 2FA password error:', err)
-      authSessions.delete(ctx.chat.id)
+      authSessions.delete(ctx.from.id)
       return ctx.reply('❌ Wrong password: ' + err.message)
     }
   }

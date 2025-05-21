@@ -7,7 +7,7 @@ import { UserSessionModel } from '../db/user-session.schema'
 
 export const whoamiListener = () => {
   return bot.command('whoami', async (ctx) => {
-    const chatId = ctx.chat.id
+    const chatId = ctx.from.id
     const messageId = ctx.message.message_id
     const username = ctx.from.username || null
     const userId = ctx.from.id || null
