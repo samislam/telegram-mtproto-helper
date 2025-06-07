@@ -25,6 +25,7 @@ export const crawlAndForwardMedia = async (
   for (const msg of messages) {
     if (msg.photo || msg.video || msg.document || msg.sticker) {
       try {
+        if (!client.connected) await client.connect()
         await client.forwardMessages(target, {
           messages: [msg.id],
           fromPeer: source,

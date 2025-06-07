@@ -37,6 +37,7 @@ export const registerMediaForwarderHandler = (
       console.error(`❌ No client found for chatId ${chatId}`)
       return
     }
+    if(!client.connected) await client.connect()
 
     try {
       const fromPeer = await client.getInputEntity(msg.peerId)
