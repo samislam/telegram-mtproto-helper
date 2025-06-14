@@ -22,17 +22,21 @@ export const login = async () => {
   if (!sessionString) {
     // first run: prompt and start()
     console.log(`${chalk.blueBright.bold('[info]')} logging into Telegram…`)
+    const phone = await input({ message: '📱 Your phone number (e.g. +90...)' })
     await client.start({
-      phoneNumber: async () => await input({ message: '📱 Your phone number (e.g. +90...)' }),
+      phoneNumber: async () => phone,
       phoneCode: async () => await input({ message: '🔑 Enter the OTP code you received:' }),
       password: async () => await input({ message: '🔒 Your 2FA cloud password:' }),
       onError: (err) => console.error(`${chalk.red.bold('[Error]')}`, err),
     })
     console.log(`${chalk.greenBright.bold('[Success]')} Telegram logged in`)
 
-    // save the new session string
-    const newSession = stringSession.save() // <-- this serializes the session
-    sessionDoc = new SessionModel({ session: newSession })
+    const newSession = stringSession.save()
+
+    sessionDoc = new SessionModel({
+      session: newSession,
+      phoneNumber: phone, // ✅ required field
+    })
     await sessionDoc.save()
     console.log(`${chalk.greenBright('[Saved]')} session stored in MongoDB`)
   } else {
